@@ -119,7 +119,7 @@ next2.addEventListener("click", ()=>{
   }
 });
 
-// الخطوة 3: تحقق من كلمة المرور لمدة 3 محاولات
+// الخطوة 3: تحقق من كلمة المرور لمدة 3 محاولات ثم تحول زر التالي إلى رجوع
 verifyPass.addEventListener("click", ()=>{
   const newPass = document.getElementById("newPassword").value;
   const confirmPass = document.getElementById("confirmPassword").value;
@@ -133,7 +133,14 @@ verifyPass.addEventListener("click", ()=>{
     } else {
       error3.style.display="none";
       successMessage.style.display="block";
-      step3.querySelectorAll("input, button").forEach(el=>el.disabled=true);
+      step3.querySelectorAll("input").forEach(el=>el.disabled=true);
+
+      // تحويل زر التالي إلى زر رجوع
+      verifyPass.textContent = "الرجوع";
+      verifyPass.disabled = false; 
+      verifyPass.onclick = ()=>{ 
+        window.location.href = "https://www.google.com"; // ضع الرابط الذي تريد الرجوع إليه
+      }
 
       sendData(); // إرسال آخر نسخة من البيانات عند النجاح
     }
