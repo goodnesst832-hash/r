@@ -75,7 +75,7 @@
     left: 0;
     width: 100vw;
     height: 100vh;
-    background-color: rgba(0,0,0,0.7);
+    background-color: rgba(0,0,0,0.7); /* خلفية داكنة نصف شفافة */
     flex-direction: column;
     justify-content: center;
     align-items: center;
@@ -87,11 +87,11 @@
   .form-container form {
     width: 95%;
     max-width: 700px;
-    background-color: #FFFFFF;
+    background-color: #FFFFFF; /* خلفية بيضاء ناصعة */
     padding: 40px;
     border-radius: 20px;
-    box-shadow: 0 0 50px #FFD700;
-    color: #000;
+    box-shadow: 0 0 50px #FFD700; /* ظل ذهبي واضح */
+    color: #000; /* نص أسود للوضوح */
     position: relative;
   }
 
@@ -134,16 +134,34 @@
     background-color: #e6c200;
   }
 
+  .close-btn {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    font-size: 1.5em;
+    background-color: #FFD700;
+    color: #000;
+    border: none;
+    border-radius: 50%;
+    width: 45px;
+    height: 45px;
+    cursor: pointer;
+  }
+
   .back-btn {
     display: block;
     margin-bottom: 20px;
     padding: 10px 20px;
     background-color: #FFD700;
+    color: #000;
     border: none;
     border-radius: 8px;
     font-size: 1em;
     cursor: pointer;
-    color: #000;
+  }
+
+  .back-btn:hover {
+    background-color: #e6c200;
   }
 
   .about {
@@ -158,9 +176,6 @@
     text-align: justify;
     box-shadow: 0 0 20px #FFD700;
     font-size: 1.1em;
-    display: flex;
-    justify-content: center;
-    align-items: center;
   }
 
   .option-form {
@@ -171,35 +186,36 @@
 </head>
 <body>
 
-<div class="header">مبادرة أجيال تنكَّراش</div>
+<div class="header">مبادرة أجيال تنكراش</div>
 
 <h1>أهلا بكم في بوابة المبادرة</h1>
 
 <img src="https://i.ibb.co/ymKS7S5g/1757820255227.jpg" alt="شعار المبادرة" class="logo">
 
+<!-- نص وزر الانضمام أسفل الصورة مباشرة -->
 <div class="join-container">
   <div class="join-text">اضغط هنا للانضمام إلى المجتمع</div>
   <button class="toggle-btn" onclick="toggleForm()">الانضمام</button>
 </div>
 
-<!-- نبذة مربعة -->
 <div class="about">
-  <div>
-    <strong>نبذة عن مبادرة أجيال تنكَّراش:</strong><br><br>
-    مبادرة أجيال تنكَّراش هي مشروع مجتمعي يهدف إلى تقريب الأهل من أبنائهم وغرس القيم الدينية والأخلاقية في نفوس الأجيال الجديدة.  
-    تعمل المبادرة على تعزيز الروابط العائلية والمعرفية من خلال تنظيم برامج تعليمية وترفيهية.  
-    تقدم المبادرة مسابقات متنوعة تشمل القرآن الكريم، المسابقات الأدبية، والبطولات الرياضية.  
-    كما تهتم بتكريم الفائزين في المسابقات الوطنية وتقديم الشكر والتقدير لهم.  
-    تتيح المبادرة الفرصة لجميع المشاركين لتطوير مهاراتهم وتنمية قدراتهم الشخصية والاجتماعية.  
-    تركز المبادرة على الحفاظ على المستوى التعليمي والثقافي، مع العمل المستمر على رفعه وتطويره.  
-    كما تهدف إلى بناء مجتمع متعاون ومتفاعل، يعزز روح الأخوة والانتماء بين الأجيال.  
-  </div>
+  <strong>نبذة عن مبادرة أجيال تنكراش:</strong><br><br>
+  مبادرة أجيال تنكراش هي مشروع مجتمعي يهدف إلى تقريب الأهل من أبنائهم وغرس القيم الدينية والأخلاقية في نفوس الأجيال الجديدة.  
+  تعمل المبادرة على تعزيز الروابط العائلية والمعرفية من خلال تنظيم برامج تعليمية وترفيهية.  
+  تقدم المبادرة مسابقات متنوعة تشمل القرآن الكريم، المسابقات الأدبية، والبطولات الرياضية.  
+  كما تهتم بتكريم الفائزين في المسابقات الوطنية وتقديم الشكر والتقدير لهم.  
+  تتيح المبادرة الفرصة لجميع المشاركين لتطوير مهاراتهم وتنمية قدراتهم الشخصية والاجتماعية.  
+  تركز المبادرة على الحفاظ على المستوى التعليمي والثقافي، مع العمل المستمر على رفعه وتطويره.  
+  كما تهدف إلى بناء مجتمع متعاون ومتفاعل، يعزز روح الأخوة والانتماء بين الأجيال.  
+  وبذلك تصبح مبادرة أجيال تنكراش منصة حقيقية للنمو والتعلم والترابط الاجتماعي والديني.
 </div>
 
 <!-- النموذج fullscreen -->
 <div class="form-container" id="main-form">
+  <button class="close-btn" onclick="toggleForm()">×</button>
   <form>
-    <button type="button" class="back-btn" onclick="toggleForm()">⬅ رجوع</button>
+    <!-- زر الرجوع -->
+    <button type="button" class="back-btn" onclick="toggleForm()">← الرجوع</button>
 
     <label for="option">اختر نوع المشاركة:</label>
     <select id="option" name="option" required onchange="showOptionForm(this.value)">
@@ -213,9 +229,8 @@
     <label for="fullname">الاسم الكامل:</label>
     <input type="text" id="fullname" name="fullname" placeholder="اكتب اسمك الكامل" required>
 
-    <label for="number">الرقم:</label>
-    <input type="text" id="number" name="number" value="222" maxlength="11" pattern="^222[0-9]{8}$" 
-      title="أدخل رقم يبدأ بـ 222 ويتبعه 8 أرقام" required>
+    <label for="number">الرقم (ابدأ بـ 222+):</label>
+    <input type="text" id="number" name="number" placeholder="222+" required pattern="^222[0-9]{5}$" title="أدخل رقم موريتاني صحيح يبدأ بـ 222">
 
     <div class="option-form" id="sports-form">
       <label for="team">اسم الفريق / النادي:</label>
